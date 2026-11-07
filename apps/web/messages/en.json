@@ -1,0 +1,98 @@
+{
+  "app": {
+    "name": "Udyam Digital",
+    "language": "Language"
+  },
+  "steps": {
+    "advisor": "Advisor",
+    "quote": "Price",
+    "kyc": "Documents",
+    "track": "Track"
+  },
+  "home": {
+    "title": "Internet, phones and billing for your business. One monthly price.",
+    "body": "Answer five quick questions. We suggest what fits your shop or office, show the full price, and you finish the paperwork on your phone.",
+    "start": "Start with the advisor",
+    "skip": "I know what I need: see prices",
+    "facts": {
+      "questions": "questions, about two minutes",
+      "kyc": "documents, checked while you wait",
+      "visits": "visits needed to sign up"
+    }
+  },
+  "chat": {
+    "title": "Advisor",
+    "placeholder": "Type your answer",
+    "send": "Send",
+    "q_type": "Namaste! What kind of business do you run?",
+    "type_micro": "Shop or store",
+    "type_prof": "Clinic or office",
+    "type_multi": "Several branches",
+    "type_mfg": "Factory or workshop",
+    "q_employees": "How many people work there, including you?",
+    "q_sites": "How many locations do you need connected?",
+    "q_city": "Which kind of city are you in?",
+    "city_1": "Metro or big city",
+    "city_2": "Smaller city",
+    "q_gstin": "Do you have a GST number? Some services need an active GST registration.",
+    "no_gstin": "No GST yet",
+    "done": "Thanks. I have what I need to suggest a plan.",
+    "see_price": "See your monthly price",
+    "invalid_number": "Please enter a number, for example 4."
+  },
+  "quote": {
+    "title": "Your monthly price",
+    "loading": "Working out your price",
+    "error": "Could not reach the pricing service. Check that the API is running on port 8000, then retry.",
+    "retry": "Retry",
+    "recommended": "Recommended",
+    "good": "Essential",
+    "better": "Recommended",
+    "best": "Complete",
+    "per_month": "per month, all-in",
+    "setup": "One-time setup",
+    "contract": "Contract",
+    "months": "{count} months",
+    "activation": "Expected to be working by",
+    "accept": "Accept and continue",
+    "no_profile": "Tell us about your business first.",
+    "to_advisor": "Go to the advisor",
+    "gst_note": "Some services are hidden because they need an active GST registration."
+  },
+  "kyc": {
+    "title": "Business documents",
+    "consent_title": "Before you upload",
+    "consent_body": "We use these documents only to verify your business for this connection. Images are deleted 30 days after verification; we keep the checked details.",
+    "consent_required": "I agree to KYC verification for this order (required)",
+    "consent_marketing": "Send me offers on WhatsApp (optional)",
+    "docs": {
+      "gst": "GST certificate",
+      "udyam": "Udyam certificate",
+      "id": "Signatory ID",
+      "address": "Address proof (last 90 days)"
+    },
+    "not_uploaded": "Not uploaded",
+    "upload": "Upload"
+  },
+  "track": {
+    "title": "Order status",
+    "states": {
+      "placed": "Order placed",
+      "kyc": "Documents verified",
+      "scheduled": "Engineer visit booked",
+      "installed": "Installed",
+      "activated": "Working"
+    }
+  },
+  "units": {
+    "site": "{count, plural, one {# location} other {# locations}}",
+    "line": "{count, plural, one {# mobile line} other {# mobile lines}}",
+    "user": "{count, plural, one {# person} other {# people}}",
+    "camera": "{count, plural, one {# camera} other {# cameras}}",
+    "device": "{count, plural, one {# device} other {# devices}}",
+    "channel": "{count, plural, one {# phone line} other {# phone lines}}",
+    "counter": "{count, plural, one {# billing counter} other {# billing counters}}",
+    "vehicle": "{count, plural, one {# vehicle} other {# vehicles}}",
+    "IP": "{count, plural, one {# fixed IP} other {# fixed IPs}}"
+  }
+}

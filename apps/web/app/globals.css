@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette: ballpoint-ink blue on cool paper; stamp green for "verified";
+   marigold only marks the recommended plan. Values are RGB channels so
+   Tailwind opacity modifiers work. */
+:root {
+  --paper: 246 247 249;
+  --surface: 255 255 255;
+  --ink: 28 37 51;
+  --ink-soft: 84 95 112;
+  --line: 222 226 233;
+  --pen: 42 58 143;
+  --pen-strong: 31 44 112;
+  --stamp: 30 122 76;
+  --marigold: 227 162 26;
+  --alert: 180 35 24;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: 17 22 31;
+    --surface: 26 32 44;
+    --ink: 232 236 242;
+    --ink-soft: 160 170 186;
+    --line: 48 57 74;
+    --pen: 139 157 240;
+    --pen-strong: 172 186 247;
+    --stamp: 86 196 138;
+    --marigold: 240 188 72;
+    --alert: 248 113 102;
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-paper text-ink antialiased;
+  font-feature-settings: "kern";
+  line-height: 1.5;
+}
+
+.money {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--pen));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
