@@ -129,7 +129,7 @@ def test_order_actions_are_admin_only(client):
     assert len(outbox) == 3
 
 
-def test_reviewer_can_clear_a_review_check(client):
+def test_reviewer_can_clear_a_review_check(client, test_db_url):
     # K10: everything passes except the signatory, which needs a reviewer.
     gstin, udyam = "27QHJXK0658U1ZL", "UDYAM-MH-00-7183141"
     q = client.post(
@@ -154,6 +154,16 @@ def test_reviewer_can_clear_a_review_check(client):
         i for i in client.get("/api/v1/console/kyc/queue", headers=admin).json() if i["business_id"] == bid
     )
     assert item["check"] == "signatory_match"
+
+    # Partners can't decide KYC
+    partner = login(client, "partner.mumbai")
+    r = client.post(
+        f"/api/v1/console/kyc/checks/{item['check_id']}/resolve",
+        json={"result": "pass", "note": "Looks fine"},
+        headers=partner,
+    )
+    assert r.status_code == 403
+
     r = client.post(
         f"/api/v1/console/kyc/checks/{item['check_id']}/resolve",
         json={"result": "pass", "note": "Board resolution seen"},
@@ -161,3 +171,21 @@ def test_reviewer_can_clear_a_review_check(client):
     )
     assert r.json()["overall"] == "pass"
     assert client.get(f"/api/v1/kyc/{bid}/status", headers=h).json()["overall"] == "pass"
+    # A check the machine already decided (pass or fail) can't be overridden from the console
+    from sqlalchemy import create_engine, select
+
+    from app.models import KycCheck, KycDocument
+
+    with create_engine(test_db_url).connect() as conn:
+        decided = conn.execute(
+            select(KycCheck.id)
+            .join(KycDocument, KycDocument.id == KycCheck.document_id)
+            .where(KycDocument.business_id == bid, KycCheck.result != "review")
+            .limit(1)
+        ).scalar_one()
+    r = client.post(
+        f"/api/v1/console/kyc/checks/{decided}/resolve",
+        json={"result": "fail", "note": "Override attempt"},
+        headers=admin,
+    )
+    assert r.status_code == 409

@@ -408,6 +408,9 @@ class ResolveIn(BaseModel):
 
 @router.post("/kyc/checks/{check_id}/resolve")
 def resolve_check(check_id: int, body: ResolveIn, user: User, db: Db):
+    # Partners are credited for sales in their city, so they don't approve KYC.
+    if user.role == "partner":
+        raise HTTPException(403, "KYC reviews are decided by a rep or an admin")
     row = db.execute(
         _scope(
             select(KycCheck, KycDocument, Business)
@@ -420,6 +423,10 @@ def resolve_check(check_id: int, body: ResolveIn, user: User, db: Db):
     if row is None:
         raise HTTPException(404, "Check not found")
     check, doc, biz = row
+    # Only what the machine sent for review can be decided by a person: a failed
+    # check (e.g. cancelled GSTIN) must never be overridden to pass from here.
+    if check.result != "review":
+        raise HTTPException(409, "Only checks waiting for review can be resolved")
     overrides = dict((doc.extracted or {}).get("overrides", {}))
     overrides[check.check_name] = {"result": body.result, "by": user.username, "note": mask_pii(body.note)}
     doc.extracted = {**(doc.extracted or {}), "overrides": overrides}
