@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "udyam-api",
+      "credentials": [
+        { "accessKey": "udyam-dev-access", "secretKey": "udyam-dev-secret-change-me" }
+      ],
+      "actions": ["Read", "Write", "List", "Tagging", "Admin"]
+    }
+  ]
+}

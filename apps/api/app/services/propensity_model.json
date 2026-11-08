@@ -1,0 +1,200 @@
+{
+ "type": "logistic",
+ "intercept": -0.09499646081033208,
+ "numeric": {
+  "log_employees": {
+   "mean": 2.285241430595564,
+   "std": 1.1783144562139884,
+   "coef": -0.28394588485887134
+  },
+  "log_sites": {
+   "mean": 0.9251514010597819,
+   "std": 0.51965912101964,
+   "coef": -0.22821251447471316
+  },
+  "log_spend": {
+   "mean": 7.493271358179358,
+   "std": 1.0566883035519306,
+   "coef": -0.08916191499157052
+  },
+  "n_products": {
+   "mean": 1.988,
+   "std": 0.8084740573535495,
+   "coef": -0.12511625314614247
+  },
+  "has_gstin": {
+   "mean": 0.7064,
+   "std": 0.45547158107062696,
+   "coef": 0.640268765743534
+  },
+  "has_udyam": {
+   "mean": 0.5450666666666667,
+   "std": 0.4980312623310823,
+   "coef": 0.15637590650512284
+  },
+  "any_ineligible": {
+   "mean": 0.18213333333333334,
+   "std": 0.3860058492990407,
+   "coef": 0.057145549298911295
+  }
+ },
+ "categorical": {
+  "segment": {
+   "Micro retail & services": -1.0123659969854526,
+   "Professional offices": -0.0287745716582484,
+   "Small manufacturers": 0.41648440773754847,
+   "Small multi-site businesses": 0.5760152374088847
+  },
+  "business_type": {
+   "Apparel retail chain": 0.20001304310976498,
+   "Architecture studio": 0.016705276884011088,
+   "Auto-parts unit": -0.49098146398000553,
+   "Bakery": -0.04101207345824057,
+   "Bakery chain": 0.20302975198624074,
+   "Boutique": -0.023515316295279594,
+   "Budget hotel group": 0.37094146940665396,
+   "CA firm": -0.13506463486539685,
+   "Coaching centre": 0.1243888628617766,
+   "Dental clinic": 0.028990800071978774,
+   "Diagnostic lab": -0.12267595867114807,
+   "Electronics retail chain": -0.062161416747610894,
+   "Food processing unit": 0.2889617384280659,
+   "Furniture workshop": -0.05170901970582701,
+   "Gym chain": 0.6360873033187355,
+   "Hardware store": -0.7006445160674724,
+   "Insurance agency": -0.2352090335127878,
+   "Kirana store": -0.24177500724479956,
+   "Law office": 0.36323110349893434,
+   "Mobile repair shop": 0.4722296886571137,
+   "Optician": -0.154113477090669,
+   "Packaging unit": 0.33153318434001766,
+   "Pharmacy": -0.28258503883760894,
+   "Pharmacy chain": 0.3509663566359516,
+   "Physiotherapy clinic": -0.17090320776824192,
+   "Plastic moulding unit": 0.6437428857740759,
+   "Pre-school chain": -0.4746093171352971,
+   "Printing press": -0.019977286417736387,
+   "Real estate agency": 0.34318571161136113,
+   "Restaurant chain": -0.6482519531655538,
+   "Salon": -0.1404759841600017,
+   "Stationery shop": -0.3200240212675958,
+   "Sweet shop": 0.419549748779106,
+   "Textile unit": -0.2850856307010421,
+   "Travel agency": -0.24142349176873343
+  },
+  "lead_source": {
+   "Channel partner": 0.05924570470739918,
+   "Field sales": 0.042036823386481736,
+   "Inbound call": 0.24626288032035493,
+   "Referral": 0.9393522990290161,
+   "Website form": -0.5047087140819354,
+   "WhatsApp campaign": -0.8308299168585833
+  },
+  "city_tier": {
+   "1": 0.32600312818232857,
+   "2": -0.3746440516795913
+  },
+  "preferred_language": {
+   "Bengali": -0.17107712275432052,
+   "English": 0.2223650881737621,
+   "Gujarati": 0.18583991671037986,
+   "Hindi": 0.43484526609955665,
+   "Kannada": -0.07546171446103146,
+   "Malayalam": 0.41255545535528404,
+   "Marathi": -0.1448158868706323,
+   "Punjabi": -0.5840215543554517,
+   "Tamil": -0.3970548562267133,
+   "Telugu": 0.06818448483189996
+  },
+  "annual_turnover_band": {
+   "1.5 - 5 cr": -0.14224233377208526,
+   "25 - 100 cr": -0.003178344368575028,
+   "40 lakh - 1.5 cr": -0.02368650457069723,
+   "5 - 25 cr": 0.2837580654321245,
+   "< 40 lakh": -0.1632918062180382
+  },
+  "current_internet": {
+   "Business broadband": -0.11084636165120049,
+   "Home broadband": 0.20443057451913443,
+   "Leased line": 0.0944432852890203,
+   "Mixed per site": 0.23181813015324676,
+   "Mobile hotspot": -0.12622701023912092,
+   "None": -0.342259541568345
+  }
+ },
+ "baseline": {
+  "segment_Micro retail & services": 0.5392,
+  "segment_Professional offices": 0.2541333333333333,
+  "segment_Small manufacturers": 0.055733333333333336,
+  "segment_Small multi-site businesses": 0.15093333333333334,
+  "business_type_Apparel retail chain": 0.0184,
+  "business_type_Architecture studio": 0.0264,
+  "business_type_Auto-parts unit": 0.008533333333333334,
+  "business_type_Bakery": 0.0568,
+  "business_type_Bakery chain": 0.016266666666666665,
+  "business_type_Boutique": 0.0568,
+  "business_type_Budget hotel group": 0.024266666666666666,
+  "business_type_CA firm": 0.023466666666666667,
+  "business_type_Coaching centre": 0.02666666666666667,
+  "business_type_Dental clinic": 0.0272,
+  "business_type_Diagnostic lab": 0.02666666666666667,
+  "business_type_Electronics retail chain": 0.020533333333333334,
+  "business_type_Food processing unit": 0.007466666666666667,
+  "business_type_Furniture workshop": 0.007466666666666667,
+  "business_type_Gym chain": 0.0176,
+  "business_type_Hardware store": 0.05333333333333334,
+  "business_type_Insurance agency": 0.022933333333333333,
+  "business_type_Kirana store": 0.0496,
+  "business_type_Law office": 0.028533333333333334,
+  "business_type_Mobile repair shop": 0.0512,
+  "business_type_Optician": 0.0472,
+  "business_type_Packaging unit": 0.008,
+  "business_type_Pharmacy": 0.055733333333333336,
+  "business_type_Pharmacy chain": 0.019466666666666667,
+  "business_type_Physiotherapy clinic": 0.0248,
+  "business_type_Plastic moulding unit": 0.008,
+  "business_type_Pre-school chain": 0.016533333333333334,
+  "business_type_Printing press": 0.008,
+  "business_type_Real estate agency": 0.022133333333333335,
+  "business_type_Restaurant chain": 0.017866666666666666,
+  "business_type_Salon": 0.05733333333333333,
+  "business_type_Stationery shop": 0.0592,
+  "business_type_Sweet shop": 0.052,
+  "business_type_Textile unit": 0.008266666666666667,
+  "business_type_Travel agency": 0.025333333333333333,
+  "lead_source_Channel partner": 0.19786666666666666,
+  "lead_source_Field sales": 0.3506666666666667,
+  "lead_source_Inbound call": 0.09786666666666667,
+  "lead_source_Referral": 0.08586666666666666,
+  "lead_source_Website form": 0.20053333333333334,
+  "lead_source_WhatsApp campaign": 0.0672,
+  "city_tier_1": 0.5128,
+  "city_tier_2": 0.4872,
+  "preferred_language_Bengali": 0.022933333333333333,
+  "preferred_language_English": 0.22773333333333334,
+  "preferred_language_Gujarati": 0.050133333333333335,
+  "preferred_language_Hindi": 0.4285333333333333,
+  "preferred_language_Kannada": 0.05226666666666667,
+  "preferred_language_Malayalam": 0.017866666666666666,
+  "preferred_language_Marathi": 0.10106666666666667,
+  "preferred_language_Punjabi": 0.018133333333333335,
+  "preferred_language_Tamil": 0.0408,
+  "preferred_language_Telugu": 0.04053333333333333,
+  "annual_turnover_band_1.5 - 5 cr": 0.20613333333333334,
+  "annual_turnover_band_25 - 100 cr": 0.044533333333333334,
+  "annual_turnover_band_40 lakh - 1.5 cr": 0.31066666666666665,
+  "annual_turnover_band_5 - 25 cr": 0.14293333333333333,
+  "annual_turnover_band_< 40 lakh": 0.29573333333333335,
+  "current_internet_Business broadband": 0.28373333333333334,
+  "current_internet_Home broadband": 0.24986666666666665,
+  "current_internet_Leased line": 0.03306666666666667,
+  "current_internet_Mixed per site": 0.04586666666666667,
+  "current_internet_Mobile hotspot": 0.3648,
+  "current_internet_None": 0.02266666666666667
+ },
+ "auc": {
+  "logistic": 0.6688,
+  "lightgbm": 0.624
+ },
+ "base_rate": 0.0736
+}

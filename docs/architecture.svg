@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 800" width="1280" height="800" font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#545F70"/>
+    </marker>
+    <style>
+      .t{font-size:15px;font-weight:600;fill:#1C2533}
+      .s{font-size:12.5px;fill:#545F70}
+      .h{font-size:13px;font-weight:600;fill:#545F70;letter-spacing:.2px}
+      .box{fill:#FFFFFF;stroke:#DEE2E9;stroke-width:1.5}
+      .core{fill:#EEF1FB;stroke:#2A3A8F;stroke-width:1.8}
+      .ext{fill:#F6F7F9;stroke:#B9C0CC;stroke-width:1.2;stroke-dasharray:5 4}
+      .l{stroke:#545F70;stroke-width:1.4;fill:none;marker-end:url(#a)}
+      .ld{stroke:#545F70;stroke-width:1.2;fill:none;stroke-dasharray:4 4;marker-end:url(#a)}
+    </style>
+  </defs>
+  <rect width="1280" height="800" fill="#F6F7F9"/>
+  <text x="40" y="44" style="font-size:22px;font-weight:700;fill:#1C2533">Udyam Digital — system architecture</text>
+  <text x="40" y="68" class="s">Every channel calls one FastAPI backend; every recommendation and price passes through the deterministic rules engine.</text>
+
+  <!-- channels -->
+  <text x="40" y="112" class="h">CHANNELS</text>
+  <rect x="40" y="124" width="210" height="64" rx="6" class="box"/><text x="56" y="150" class="t">Owner web app (PWA)</text><text x="56" y="170" class="s">Next.js · Hindi / English</text>
+  <rect x="40" y="204" width="210" height="64" rx="6" class="box"/><text x="56" y="230" class="t">Voice in the chat</text><text x="56" y="250" class="s">Browser speech API</text>
+  <rect x="40" y="284" width="210" height="64" rx="6" class="box"/><text x="56" y="310" class="t">WhatsApp</text><text x="56" y="330" class="s">Cloud API webhook</text>
+  <rect x="40" y="364" width="210" height="64" rx="6" class="box"/><text x="56" y="390" class="t">Partner console</text><text x="56" y="410" class="s">Reps · partners · admin (JWT)</text>
+
+  <!-- API -->
+  <rect x="300" y="124" width="150" height="304" rx="6" class="core"/>
+  <text x="318" y="152" class="t">FastAPI</text><text x="318" y="172" class="s">/api/v1</text>
+  <text x="318" y="210" class="s">Owner token or</text><text x="318" y="227" class="s">console JWT</text>
+  <text x="318" y="262" class="s">Rate limits</text>
+  <text x="318" y="297" class="s">PII masking on</text><text x="318" y="314" class="s">every log line</text>
+  <text x="318" y="349" class="s">Audit log for</text><text x="318" y="366" class="s">PII views</text>
+  <path d="M250,156 H296" class="l"/><path d="M250,236 H296" class="l"/><path d="M250,316 H296" class="l"/><path d="M250,396 H296" class="l"/>
+
+  <!-- services -->
+  <text x="500" y="112" class="h">SERVICES</text>
+  <rect x="500" y="124" width="300" height="74" rx="6" class="box"/><text x="516" y="150" class="t">Advisor agent</text><text x="516" y="170" class="s">Slots → rules engine → explain. LLM only reads</text><text x="516" y="187" class="s">text and phrases replies; output re-validated</text>
+  <rect x="500" y="212" width="300" height="74" rx="6" class="core"/><text x="516" y="238" class="t">Rules engine</text><text x="516" y="258" class="s">Eligibility · dependencies · Good / Better / Best</text><text x="516" y="275" class="s">quantities · price (product_catalogue.csv)</text>
+  <rect x="500" y="300" width="300" height="56" rx="6" class="box"/><text x="516" y="324" class="t">Quotes &amp; checkout</text><text x="516" y="343" class="s">Add-on toggles re-price · UPI AutoPay (test)</text>
+  <rect x="500" y="370" width="300" height="74" rx="6" class="box"/><text x="516" y="396" class="t">Smart KYC</text><text x="516" y="416" class="s">Consent → OCR (OpenCV + RapidOCR) → field</text><text x="516" y="433" class="s">checks → cross-checks → verdict / review queue</text>
+  <rect x="500" y="458" width="300" height="56" rx="6" class="box"/><text x="516" y="482" class="t">Order tracker</text><text x="516" y="501" class="s">State machine · ETA · slots · WhatsApp per step</text>
+  <rect x="500" y="528" width="300" height="56" rx="6" class="box"/><text x="516" y="552" class="t">Propensity score</text><text x="516" y="571" class="s">Logistic model + top-3 reasons (exact SHAP)</text>
+  <path d="M450,161 H496" class="l"/><path d="M450,328 H496" class="l"/><path d="M450,407 H496" class="l"/>
+  <path d="M470,428 V556" stroke="#545F70" stroke-width="1.4" fill="none"/><path d="M450,428 H470" stroke="#545F70" stroke-width="1.4" fill="none"/>
+  <path d="M470,486 H496" class="l"/><path d="M470,556 H496" class="l"/>
+  <path d="M650,198 V208" class="l"/><path d="M650,300 V290" class="l"/>
+
+  <!-- stores: each on the row of the service that uses it -->
+  <text x="860" y="112" class="h">STORES</text>
+  <rect x="860" y="124" width="180" height="74" rx="6" class="box"/><text x="876" y="150" class="t">PostgreSQL</text><text x="876" y="170" class="s">every service persists here</text><text x="876" y="187" class="s">GSTIN/Udyam encrypted</text>
+  <rect x="860" y="212" width="180" height="74" rx="6" class="box"/><text x="876" y="238" class="t">Case data</text><text x="876" y="258" class="s">catalogue · leads ·</text><text x="876" y="275" class="s">GST / Udyam registries</text>
+  <rect x="860" y="370" width="180" height="74" rx="6" class="box"/><text x="876" y="396" class="t">Object store</text><text x="876" y="416" class="s">KYC images, encrypted</text><text x="876" y="433" class="s">by the API before upload</text>
+  <rect x="860" y="458" width="180" height="74" rx="6" class="box"/><text x="876" y="484" class="t">Redis + worker</text><text x="876" y="504" class="s">OCR jobs · notifications</text><text x="876" y="521" class="s">nightly document purge</text>
+  <path d="M800,161 H856" class="l"/><path d="M800,249 H856" class="l"/><path d="M800,407 H856" class="l"/><path d="M800,486 H856" class="l"/>
+
+  <!-- external: optional, each names its caller -->
+  <text x="1080" y="112" class="h">EXTERNAL (OPTIONAL)</text>
+  <rect x="1080" y="124" width="170" height="74" rx="6" class="ext"/><text x="1094" y="150" class="t">Gemini / OpenAI</text><text x="1094" y="170" class="s">advisor; masked text</text><text x="1094" y="187" class="s">only, re-validated</text>
+  <rect x="1080" y="212" width="170" height="74" rx="6" class="ext"/><text x="1094" y="238" class="t">GST / Udyam APIs</text><text x="1094" y="258" class="s">KYC lookups; mocked</text><text x="1094" y="275" class="s">from the registries</text>
+  <rect x="1080" y="300" width="170" height="56" rx="6" class="ext"/><text x="1094" y="324" class="t">Razorpay / UPI</text><text x="1094" y="343" class="s">checkout; test mode</text>
+  <rect x="1080" y="458" width="170" height="74" rx="6" class="ext"/><text x="1094" y="484" class="t">WhatsApp Cloud</text><text x="1094" y="504" class="s">chat + order updates;</text><text x="1094" y="521" class="s">sandbox or outbox</text>
+  <text x="1080" y="566" class="s">Dashed: swapped for mocks when</text><text x="1080" y="583" class="s">no key is configured.</text>
+
+  <!-- request flow -->
+  <rect x="40" y="620" width="1210" height="140" rx="6" class="box"/>
+  <text x="60" y="648" class="t">A typical journey</text>
+  <text x="60" y="676" class="s">1  Owner chats (web, voice or WhatsApp) → advisor fills the profile and asks the rules engine for eligible products → plan with reasons.</text>
+  <text x="60" y="698" class="s">2  Quote service prices Good / Better / Best; toggles re-validate → checkout (UPI AutoPay mandate, test) → order placed, WhatsApp sent.</text>
+  <text x="60" y="720" class="s">3  Consent → documents → worker runs OCR + checks → pass moves the order to "Documents verified"; "review" goes to the console queue.</text>
+  <text x="60" y="742" class="s">4  Admin advances install steps; each step messages the owner. Leads that stall land in the console, scored, with the reason they stopped.</text>
+</svg>

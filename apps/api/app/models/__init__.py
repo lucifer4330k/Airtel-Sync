@@ -47,13 +47,15 @@ class Business(Base):
     __tablename__ = "businesses"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(200))
-    type: Mapped[str] = mapped_column(String(80))
+    # name / type / city / state are filled from the registry lookup, so a
+    # business created at the consent step starts without them.
+    name: Mapped[str | None] = mapped_column(String(200))
+    type: Mapped[str | None] = mapped_column(String(80))
     segment: Mapped[str] = mapped_column(String(10))  # micro / prof / multi / mfg
-    city: Mapped[str] = mapped_column(String(80))
+    city: Mapped[str | None] = mapped_column(String(80))
     tier: Mapped[int] = mapped_column(Integer)
-    state: Mapped[str] = mapped_column(String(80))
-    language: Mapped[str] = mapped_column(String(30))
+    state: Mapped[str | None] = mapped_column(String(80))
+    language: Mapped[str | None] = mapped_column(String(30))
     employees: Mapped[int] = mapped_column(Integer)
     sites: Mapped[int] = mapped_column(Integer)
     turnover_band: Mapped[str | None] = mapped_column(String(30))
@@ -61,6 +63,8 @@ class Business(Base):
     udyam_number: Mapped[str | None] = mapped_column(EncryptedString(255))
     current_internet: Mapped[str | None] = mapped_column(String(40))
     telecom_spend: Mapped[int | None] = mapped_column(Integer)
+    # Owner's mobile for order updates (WhatsApp/SMS); encrypted, shown masked.
+    phone: Mapped[str | None] = mapped_column(EncryptedString(255))
 
 
 class Lead(Base):
@@ -78,6 +82,12 @@ class Lead(Base):
     propensity_score: Mapped[float | None] = mapped_column(Float)
     score_reasons: Mapped[list | None] = mapped_column(JSON)
     created_at: Mapped[date] = mapped_column(Date, server_default=func.current_date())
+    # Where the digital journey stopped and why, for the partner console.
+    stopped_at: Mapped[str | None] = mapped_column(String(30))  # advisor / quote / checkout / kyc
+    needs_human: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")
+    needs_human_reason: Mapped[str | None] = mapped_column(Text)
+    suggested_bundle: Mapped[dict | None] = mapped_column(JSON)
+    follow_ups: Mapped[list | None] = mapped_column(JSON)  # [{at, by, note}]
 
 
 class AdvisorSession(Base):
@@ -111,7 +121,8 @@ class Quote(Base):
     setup_total: Mapped[int] = mapped_column(Integer)
     contract_months: Mapped[int] = mapped_column(Integer)
     eta_days: Mapped[int] = mapped_column(Integer)
-    status: Mapped[str] = mapped_column(String(20), default="draft")
+    status: Mapped[str] = mapped_column(String(20), default="draft")  # draft / accepted / superseded
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class QuoteItem(Base):
@@ -163,9 +174,14 @@ class Order(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     quote_id: Mapped[int] = mapped_column(ForeignKey("quotes.id"))
+    business_id: Mapped[int] = mapped_column(ForeignKey("businesses.id"))
     state: Mapped[str] = mapped_column(String(30), default="order_placed")
+    hold_reason: Mapped[str | None] = mapped_column(Text)
     eta_date: Mapped[date | None] = mapped_column(Date)
     engineer_slot: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    payment_method: Mapped[str | None] = mapped_column(String(30))  # upi_autopay / razorpay
+    payment_ref: Mapped[str | None] = mapped_column(String(80))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class OrderEvent(Base):
@@ -186,3 +202,30 @@ class AuditLog(Base):
     event: Mapped[str] = mapped_column(String(80))  # e.g. console.view_pii
     target: Mapped[str | None] = mapped_column(String(80))
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Notification(Base):
+    """Outbox for WhatsApp / SMS. Sent via sandbox when configured, else mocked."""
+
+    __tablename__ = "notifications"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[int | None] = mapped_column(ForeignKey("orders.id", ondelete="CASCADE"))
+    channel: Mapped[str] = mapped_column(String(10))  # whatsapp / sms
+    to_masked: Mapped[str | None] = mapped_column(String(20))
+    body: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(20), default="queued")  # queued / sent / mocked / failed
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ConsoleUser(Base):
+    """Back-office accounts: rep, partner, admin. Territory = city they cover."""
+
+    __tablename__ = "console_users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(60), unique=True)
+    name: Mapped[str] = mapped_column(String(120))
+    role: Mapped[str] = mapped_column(String(10))  # rep / partner / admin
+    city: Mapped[str | None] = mapped_column(String(80))
+    password_hash: Mapped[str] = mapped_column(String(255))

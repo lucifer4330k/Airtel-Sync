@@ -1,0 +1,74 @@
+# Render blueprint: API, OCR worker, nightly purge, Postgres and Redis.
+# The web app deploys to Vercel (root directory apps/web).
+# After the first deploy, run once from the API service shell:
+#   alembic upgrade head && python ../../scripts/seed_db.py   (or a Render job)
+databases:
+  - name: udyam-db
+    plan: free
+    databaseName: udyam
+    user: udyam
+
+services:
+  - type: redis
+    name: udyam-redis
+    plan: free
+    ipAllowList: []
+
+  - type: web
+    name: udyam-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /api/v1/health
+    envVars: &apienv
+      - key: DATABASE_URL
+        fromDatabase: { name: udyam-db, property: connectionString }
+      - key: REDIS_URL
+        fromService: { type: redis, name: udyam-redis, property: connectionString }
+      - key: KYC_QUEUE
+        value: rq
+      - key: STORAGE_BACKEND
+        value: s3
+      - key: FIELD_ENCRYPTION_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false # same value on every service (owner links are signed with it)
+      - key: CORS_ORIGINS
+        sync: false # e.g. https://udyam-digital.vercel.app
+      - key: PUBLIC_WEB_URL
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY
+        sync: false
+      - key: S3_SECRET_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: CONSOLE_DEMO_PASSWORD
+        sync: false
+
+  - type: worker
+    name: udyam-worker
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    dockerCommand: rq worker --url $REDIS_URL kyc notifications maintenance
+    plan: starter
+    envVars: *apienv
+
+  - type: cron
+    name: udyam-purge-documents
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    schedule: "30 20 * * *" # 02:00 IST
+    dockerCommand: python -m app.workers.purge_documents
+    envVars: *apienv

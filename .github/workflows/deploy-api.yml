@@ -1,0 +1,25 @@
+name: Deploy API
+
+# Pushes the API to a Hugging Face Space (free Docker hosting) on every push
+# to main that touches the backend or the case data.
+# One-time setup in GitHub -> Settings -> Secrets and variables -> Actions:
+#   secret   HF_TOKEN   Hugging Face token with write access
+#   variable HF_SPACE   e.g. your-username/udyam-api
+on:
+  push:
+    branches: [main, master]
+    paths: ["apps/api/**", "data/**", "scripts/seed_db.py", "deploy/**"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: vars.HF_SPACE != ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install huggingface_hub
+      - run: python deploy/hf_space.py --space "${{ vars.HF_SPACE }}"
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}

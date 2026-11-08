@@ -1,0 +1,125 @@
+{
+ "generated_at": "2026-11-08T11:53:11+00:00",
+ "lead_sweep": {
+  "profiles": 5000,
+  "plans_checked": 14937,
+  "ineligible_plans": 0,
+  "broken_dependencies": 0
+ },
+ "personas": {
+  "total": 27,
+  "passed": 27,
+  "max_turns": 5,
+  "failures": []
+ },
+ "repair": {
+  "cases": 1000,
+  "invalid_options": 0,
+  "solvable_within_budget": 564,
+  "valid_fix_found": 564,
+  "handoffs_offered": 1
+ },
+ "kyc": {
+  "applicants": [
+   {
+    "applicant": "K01",
+    "finding": "GST registration cancelled; Udyam number blank",
+    "expected": "fail",
+    "actual": "fail",
+    "reason": "GST registration is Cancelled. It must be Active.",
+    "ok": true
+   },
+   {
+    "applicant": "K02",
+    "finding": "Clean; certificate photographed at a tilt",
+    "expected": "pass",
+    "actual": "pass",
+    "reason": "",
+    "ok": true
+   },
+   {
+    "applicant": "K03",
+    "finding": "Clean",
+    "expected": "pass",
+    "actual": "pass",
+    "reason": "",
+    "ok": true
+   },
+   {
+    "applicant": "K04",
+    "finding": "GST certificate blurred",
+    "expected": "fail",
+    "actual": "fail",
+    "reason": "The photo is too blurry to read. Please upload a sharper photo or scan.",
+    "ok": true
+   },
+   {
+    "applicant": "K05",
+    "finding": "Udyam certificate not uploaded",
+    "expected": "incomplete",
+    "actual": "incomplete",
+    "reason": "Upload your Udyam certificate.",
+    "ok": true
+   },
+   {
+    "applicant": "K06",
+    "finding": "GSTIN fails the checksum (tampered)",
+    "expected": "fail",
+    "actual": "fail",
+    "reason": "GSTIN 08XXXXX8189L1Z0 on the certificate is not valid: GSTIN check digit is wrong (possible typo or tampering).",
+    "ok": true
+   },
+   {
+    "applicant": "K07",
+    "finding": "Legal name altered",
+    "expected": "fail",
+    "actual": "fail",
+    "reason": "Legal name on the certificate ('Neha Banerjee (Prop. Shri Physio Clinic)') does not match the GST registry ('Neha Banerjee (Prop. Neelgiri Physio Clinic)').",
+    "ok": true
+   },
+   {
+    "applicant": "K08",
+    "finding": "Clean; OCR reads 0 for O in the GSTIN",
+    "expected": "pass",
+    "actual": "pass",
+    "reason": "",
+    "ok": true
+   },
+   {
+    "applicant": "K09",
+    "finding": "Clean",
+    "expected": "pass",
+    "actual": "pass",
+    "reason": "",
+    "ok": true
+   },
+   {
+    "applicant": "K10",
+    "finding": "Signatory isn't the contact on file",
+    "expected": "review",
+    "actual": "review",
+    "reason": "The ID holder (Nisha Arora) is not the authorised contact on file (Fatima Menon). A reviewer will confirm their authority to sign.",
+    "ok": true
+   },
+   {
+    "applicant": "K11",
+    "finding": "Address proof 257 days old",
+    "expected": "fail",
+    "actual": "fail",
+    "reason": "The bill is dated 31 Oct 2025, 257 days old. Upload one from the last 90 days.",
+    "ok": true
+   },
+   {
+    "applicant": "K12",
+    "finding": "Clean",
+    "expected": "pass",
+    "actual": "pass",
+    "reason": "",
+    "ok": true
+   }
+  ],
+  "correct": 12,
+  "total": 12
+ },
+ "seconds": 97
+}

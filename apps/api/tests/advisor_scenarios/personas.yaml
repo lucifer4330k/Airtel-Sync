@@ -1,0 +1,184 @@
+# Advisor personas. Each runs through the real API: opening message, then the
+# answer for whatever the advisor asks next (by slot). Checks:
+#   include:      products that must be in the recommended plan
+#   never:        products that must not appear in ANY tier (ineligible or unwanted)
+#   segment:      segment the advisor should settle on
+#   needs_human:  whether a specialist follow-up should be flagged
+#   note:         text that must appear in the reply (e.g. the nearest alternative)
+# Every scenario is also re-validated: no tier may hold an ineligible product.
+
+- id: kirana-tier2-no-gst
+  open: "I run a kirana store in Indore with 3 people, no GST"
+  answers: {sites: "1", needs: "UPI billing"}
+  segment: micro
+  include: [P01, P07, P19]
+  never: [P03, P05, P13, P14, P15, P21]
+
+- id: restaurant-chain-3-sites
+  open: "We have a restaurant chain with 3 outlets in Pune, 40 staff. GSTIN {ACTIVE_GSTIN}. Need CCTV"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: multi
+  include: [P09, P23]
+
+- id: textile-30-tier2
+  open: "30-person textile unit in Surat"
+  answers: {sites: "1", gst: "{ACTIVE_GSTIN}", needs: "email"}
+  segment: mfg
+  include: [P08, P16]
+  never: [P03]
+
+- id: clinic-wants-leased-line-too-small
+  open: "Dental clinic in Mumbai, 8 staff, we want a leased line"
+  answers: {sites: "1", gst: "{ACTIVE_GSTIN}", needs: "nothing else"}
+  segment: prof
+  never: [P05, P06]
+  note: "closest option"
+
+- id: salon-chennai
+  open: "I have a salon in Chennai"
+  answers: {sites: "1", employees: "4", gst: "no", needs: "wifi for customers"}
+  segment: micro
+  include: [P22]
+  never: [P15]
+
+- id: dental-kochi-whatsapp-email
+  open: "Dental clinic, Kochi, 6 people, GST {ACTIVE_GSTIN}, need email and whatsapp"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: prof
+  include: [P15, P16]
+  never: [P03]
+
+- id: hindi-shop-jaipur
+  open: "मेरी दुकान जयपुर में है, 2 लोग काम करते हैं, GST नहीं है"
+  answers: {sites: "1", needs: "बस इतना"}
+  segment: micro
+  include: [P01, P07]
+  never: [P15, P13, P03]
+
+- id: hinglish-bakery-cctv
+  open: "meri bakery hai lucknow mein, 5 log hain, gst nahi hai, cctv chahiye"
+  answers: {sites: "1", needs: "bas itna"}
+  segment: micro
+  include: [P23]
+  never: [P15, P14]
+
+- id: factory-machine-monitoring
+  open: "Auto parts factory in Delhi, 25 workers, GSTIN {ACTIVE_GSTIN}, want machine monitoring"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: mfg
+  include: [P24]
+
+- id: small-factory-machine-monitoring-ineligible
+  open: "Furniture workshop in Nagpur, 8 workers, want machine monitoring iot"
+  answers: {sites: "1", gst: "{ACTIVE_GSTIN}", needs: "nothing else"}
+  segment: mfg
+  never: [P24, P03]
+  note: "Machine Monitoring IoT"
+
+- id: pharmacy-chain-sdwan
+  open: "Pharmacy chain, 6 branches in Bengaluru, 30 staff, GST {ACTIVE_GSTIN}, want sd-wan"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: multi
+  include: [P09, P10]
+
+- id: chain-sdwan-no-gst
+  open: "Gym chain with 4 branches in Hyderabad, 20 staff, no gst, need sd-wan"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: multi
+  never: [P10, P12, P13, P15, P21]
+  note: "Backup 4G/5G Failover"
+
+- id: ca-firm-toll-free
+  open: "CA firm in Pune, 15 staff, GSTIN {ACTIVE_GSTIN}, want a toll free number"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: prof
+  include: [P13]
+
+- id: coaching-toll-free-no-gst
+  open: "Coaching centre in Patna with 10 teachers staff, no GST, want toll-free"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: prof
+  never: [P13, P15, P03]
+
+- id: cancelled-gstin
+  open: "Boutique in Ahmedabad, 3 people. GST {CANCELLED_GSTIN}"
+  answers: {sites: "1", needs: "whatsapp"}
+  segment: micro
+  never: [P15, P14, P13]
+  note: "Cancelled"
+
+- id: typo-gstin-then-skip
+  open: "Optician in Mumbai, 2 people, my gst is 27AAAAA0000A1Z9"
+  answers: {sites: "1", gst_number: "skip", needs: "nothing else"}
+  segment: micro
+  never: [P15, P14]
+
+- id: wants-a-human
+  open: "Please call me, I want to talk to someone about internet for my shop"
+  needs_human: true
+
+- id: kirana-whatsapp-no-gst
+  open: "kirana shop in Bhopal, 2 people, no gst, I want whatsapp for orders"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: micro
+  never: [P15]
+  note: "Website + Domain Starter"
+
+- id: law-office-1g-too-small
+  open: "Law office in Delhi, 4 lawyers staff, GSTIN {ACTIVE_GSTIN}, want 1 gbps"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: prof
+  never: [P03]
+  note: "Biz Fibre 300"
+
+- id: law-office-1g-ok
+  open: "Law office in Delhi with 6 staff, GSTIN {ACTIVE_GSTIN}, want 1 gbps internet"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: prof
+  include: [P03]
+
+- id: hotel-group-guest-wifi
+  open: "Budget hotel group with 5 hotels sites in Jaipur, 25 staff, GST {ACTIVE_GSTIN}, guest wifi needed"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: multi
+  include: [P22]
+  never: [P03]
+
+- id: packaging-leased-line-survey
+  open: "Packaging factory in Nagpur, 50 workers, GST {ACTIVE_GSTIN}, need a leased line"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: mfg
+  needs_human: true
+  never: [P03]
+
+- id: gym-chain-cctv-no-gst
+  open: "gym chain, 4 branches, Hyderabad, 20 staff, no GST, cctv"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: multi
+  include: [P23]
+  never: [P10, P12, P13, P15, P21]
+
+- id: optician-website
+  open: "Optician shop in Mumbai, 2 people, GSTIN {ACTIVE_GSTIN}"
+  answers: {sites: "1", needs: "website"}
+  segment: micro
+  include: [P18]
+
+- id: clinic-two-sites-failover
+  open: "We run a clinic with 2 locations in Delhi, 10 staff, GST {ACTIVE_GSTIN}, internet goes down a lot"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: prof
+  include: [P09]
+
+- id: electronics-chain-static-ip
+  open: "Electronics retail chain, 8 stores in Kolkata, 60 staff, GSTIN {ACTIVE_GSTIN}, need static ip for cameras"
+  answers: {sites: "1", needs: "nothing else"}
+  segment: multi
+  include: [P11]
+
+- id: chips-only-flow
+  open: "Shop or store"
+  answers: {sites: "1", employees: "3", city: "Smaller city", gst: "No GST yet", needs: "Nothing else"}
+  segment: micro
+  include: [P01, P07]
+  never: [P03, P15]

@@ -43,11 +43,18 @@ def quantity_for(product: Product, biz: BusinessProfile) -> int:
 
 
 def unit_price(product: Product, biz: BusinessProfile, qty: int) -> int:
-    """Monthly price for ONE unit, somewhere in [price_min, price_max].
+    """Monthly price for ONE unit, within [price_min, price_max].
 
-    TODO(Debanjan): pick the pricing policy. See the note in the chat.
+    Policy, from the 368 activated bundles: deals landed at ~45% of the
+    range (median 0.46-0.47, no tier effect). Volume moves the price toward
+    the minimum (5+ units: 35%, 10+: 25%), so multi-site chains see a
+    discount. Prices end in 9 and never leave the catalogue range.
     """
-    return product.price_min
+    span = product.price_max - product.price_min
+    position = 0.45 if qty < 5 else 0.35 if qty < 10 else 0.25
+    raw = product.price_min + position * span
+    charm = int(raw // 10) * 10 - 1  # 1089 -> 1079
+    return max(product.price_min, min(product.price_max, charm))
 
 
 # --- bundles -----------------------------------------------------------------
@@ -76,7 +83,9 @@ class PricedBundle:
 
 
 def price_bundle(
-    quantities: dict[str, int], biz: BusinessProfile, tier: str = "custom",
+    quantities: dict[str, int],
+    biz: BusinessProfile,
+    tier: str = "custom",
     addons: frozenset[str] = frozenset(),
 ) -> PricedBundle:
     catalogue = get_catalogue()
@@ -111,20 +120,26 @@ TEMPLATES: dict[str, dict[str, list[Slot]]] = {
     "prof": {
         "good": [FIBRE, ("P07",), ("P16",)],
         "better": [FIBRE, ("P08", "P07"), ("P16",), ("P17",), ("P20",)],
-        "best": [("P03",) + FIBRE, ("P08", "P07"), ("P16",), ("P17",), ("P20",), ("P09",),
-                 ("P12",)],
+        "best": [("P03",) + FIBRE, ("P08", "P07"), ("P16",), ("P17",), ("P20",), ("P09",), ("P12",)],
     },
     "multi": {
         "good": [("P01",), ("P08", "P07"), ("P09",)],
         "better": [FIBRE, ("P08", "P07"), ("P09",), ("P19",), ("P22",), ("P23",)],
-        "best": [FIBRE, ("P08", "P07"), ("P09",), ("P10",), ("P19",), ("P22",), ("P23",),
-                 ("P15",), ("P13",)],
+        "best": [FIBRE, ("P08", "P07"), ("P09",), ("P10",), ("P19",), ("P22",), ("P23",), ("P15",), ("P13",)],
     },
     "mfg": {
         "good": [("P03",) + FIBRE, ("P08", "P07"), ("P16",)],
         "better": [("P05", "P03") + FIBRE, ("P08", "P07"), ("P16",), ("P20",), ("P11",)],
-        "best": [("P05", "P03") + FIBRE, ("P08", "P07"), ("P16",), ("P20",), ("P21",),
-                 ("P23",), ("P24",), ("P09",)],
+        "best": [
+            ("P05", "P03") + FIBRE,
+            ("P08", "P07"),
+            ("P16",),
+            ("P20",),
+            ("P21",),
+            ("P23",),
+            ("P24",),
+            ("P09",),
+        ],
     },
 }
 

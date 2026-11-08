@@ -1,0 +1,240 @@
+/*
+ * 3D pieces of the landing page. Plain CSS transforms, no WebGL:
+ * - the hero "exploded phone": UI fragments fly out of the phone to their depth
+ * - the funnel: one CSS box per stage, width proportional to businesses left,
+ *   the red overhang being exactly the businesses lost at that stage.
+ * Reduced motion: globals.css cuts transitions to ~0, so the final state shows.
+ */
+
+/* ---------- Hero: exploded phone ---------- */
+
+/* the wrap takes 480px of the grid; the 560px scene overhangs into the margin */
+.sceneWrap {
+  position: relative;
+  width: 480px;
+  height: 600px;
+}
+
+.scene {
+  --px: 0;
+  --py: 0;
+  position: relative;
+  width: 560px;
+  height: 600px;
+  perspective: 1600px;
+  perspective-origin: 50% 40%;
+}
+
+.rig {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(10deg + var(--py) * -6deg)) rotateY(calc(-24deg + var(--px) * 8deg));
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.phone {
+  position: absolute;
+  left: 150px;
+  top: 40px;
+  width: 256px;
+  height: 520px;
+  border-radius: 38px;
+  padding: 10px;
+  background: rgb(var(--night-soft));
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    0 40px 80px -30px rgb(0 0 0 / 0.6);
+  transform-style: preserve-3d;
+}
+
+.screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 29px;
+  background: rgb(246 247 249);
+  color: rgb(28 37 51);
+}
+
+/* each fragment: --x/--y position in the scene, --z its depth when open */
+.frag {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  transform: translate3d(var(--fx, 0px), var(--fy, 0px), 0) scale(0.6) rotateZ(var(--r, 0deg));
+  opacity: 0;
+  transition:
+    transform 1.1s cubic-bezier(0.16, 1, 0.3, 1) var(--delay, 0ms),
+    opacity 0.5s ease var(--delay, 0ms);
+  will-change: transform;
+}
+
+.open .frag {
+  transform: translate3d(0, 0, var(--z)) scale(1) rotateZ(var(--r, 0deg));
+  opacity: 1;
+}
+
+.floor {
+  position: absolute;
+  left: 90px;
+  bottom: -10px;
+  width: 400px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.45), transparent);
+  transform: rotateX(80deg) translateZ(-40px);
+  filter: blur(6px);
+}
+
+.stamp {
+  position: absolute;
+  right: -14px;
+  bottom: -16px;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 3px double rgb(30 122 76);
+  color: rgb(30 122 76);
+  background: rgb(255 255 255 / 0.85);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.1;
+  text-align: center;
+  transform: rotate(-14deg) translateZ(30px);
+}
+
+/* Phones: the scene keeps its 560px geometry and is scaled down from its
+   top centre, so the 3D maths is the same at every size. */
+@media (max-width: 767px) {
+  .sceneWrap {
+    width: 100%;
+    height: 410px;
+  }
+  .scene {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%) scale(0.66);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 420px) {
+  .sceneWrap {
+    height: 350px;
+  }
+  .scene {
+    transform: translateX(-50%) scale(0.56);
+  }
+}
+
+/* ---------- Problem: funnel of boxes ---------- */
+
+.slabCell {
+  perspective: 2200px;
+  perspective-origin: 20% 0%;
+}
+
+/* stacked on phones: room for the box's near end, which projects downward */
+@media (max-width: 767px) {
+  .slabCell {
+    padding-bottom: 1.25rem;
+  }
+}
+
+.slab {
+  --depth: 46px;
+  position: relative;
+  height: 40px;
+  /* 80% of the cell at most: the near end of a rotated box projects wider */
+  width: calc(var(--share) * 0.8%);
+  min-width: 6px;
+  transform-style: preserve-3d;
+  transform: rotateX(-20deg) rotateY(-16deg);
+  transform-origin: left center;
+  /* front face: kept part in pen blue, lost part in alert red */
+  background: linear-gradient(
+    90deg,
+    rgb(var(--pen)) 0 calc(var(--keep) * 1%),
+    rgb(var(--alert)) calc(var(--keep) * 1%) 100%
+  );
+  transition: transform 0.25s ease-out;
+}
+
+/* top face */
+.slab::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: var(--depth);
+  transform-origin: top;
+  transform: rotateX(-90deg);
+  background: linear-gradient(
+    90deg,
+    rgb(106 128 224) 0 calc(var(--keep) * 1%),
+    rgb(232 106 94) calc(var(--keep) * 1%) 100%
+  );
+}
+
+/* right face */
+.slab::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--depth);
+  height: 100%;
+  transform-origin: right;
+  transform: rotateY(-90deg);
+  background: rgb(120 20 14);
+}
+
+.slabFinal {
+  background: rgb(var(--stamp));
+}
+.slabFinal::before {
+  background: rgb(86 196 138);
+}
+.slabFinal::after {
+  background: rgb(18 84 52);
+}
+
+.row:hover .slab,
+.row:focus-within .slab {
+  transform: rotateX(-20deg) rotateY(-16deg) translateZ(18px);
+}
+
+/* ---------- Solution: a carbon-copy bill ---------- */
+
+.bill {
+  position: relative;
+  background: rgb(var(--surface));
+  box-shadow: 0 1px 0 rgb(var(--line)), 0 30px 60px -40px rgb(18 26 51 / 0.35);
+}
+
+/* perforated tear-off edge */
+.bill::before,
+.bill::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: radial-gradient(circle at 6px 5px, rgb(var(--paper)) 4px, transparent 4.5px) 0 0 / 12px 10px repeat-x;
+}
+.bill::before {
+  top: -5px;
+}
+.bill::after {
+  bottom: -5px;
+}
+
+.strike {
+  text-decoration: line-through;
+  text-decoration-color: rgb(var(--alert));
+  text-decoration-thickness: 2px;
+}

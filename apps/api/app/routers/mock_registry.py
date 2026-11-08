@@ -37,9 +37,7 @@ class UdyamRecord(BaseModel):
 
 async def _latency() -> None:
     s = get_settings()
-    await asyncio.sleep(
-        random.uniform(s.mock_registry_min_delay_ms, s.mock_registry_max_delay_ms) / 1000
-    )
+    await asyncio.sleep(random.uniform(s.mock_registry_min_delay_ms, s.mock_registry_max_delay_ms) / 1000)
 
 
 @router.get("/gstin/{gstin}", response_model=GstinRecord)

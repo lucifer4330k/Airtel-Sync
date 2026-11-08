@@ -15,9 +15,13 @@ const config: Config = {
         stamp: "rgb(var(--stamp) / <alpha-value>)",
         marigold: "rgb(var(--marigold) / <alpha-value>)",
         alert: "rgb(var(--alert) / <alpha-value>)",
+        chart: "rgb(var(--chart) / <alpha-value>)",
+        night: "rgb(var(--night) / <alpha-value>)",
+        "night-soft": "rgb(var(--night-soft) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-plex)", "var(--font-plex-deva)", "var(--font-tamil)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-plex)", "system-ui", "sans-serif"],
       },
       borderRadius: { bill: "6px" },
       maxWidth: { app: "30rem" },

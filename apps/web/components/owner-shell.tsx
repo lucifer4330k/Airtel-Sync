@@ -13,18 +13,21 @@ const STEPS = [
   { key: "advisor", href: "/chat" },
   { key: "quote", href: "/quote" },
   { key: "kyc", href: "/kyc" },
-  { key: "track", href: "/track/demo" },
+  { key: "track", href: "/track" },
 ] as const;
+// Pages that belong to a step without being its main screen.
+const ALIASES: Record<string, string> = { "/checkout": "/quote" };
 
 export function OwnerShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations();
   const pathname = usePathname();
-  const current = STEPS.findIndex((s) => pathname.startsWith(s.href.replace("/demo", "")));
+  const path = Object.entries(ALIASES).find(([from]) => pathname.startsWith(from))?.[1] ?? pathname;
+  const current = STEPS.findIndex((s) => path.startsWith(s.href));
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-app flex-col px-4">
       <header className="flex items-center justify-between py-3">
-        <Link href="/" className="flex min-h-11 items-center gap-2 font-semibold">
+        <Link href="/start" className="flex min-h-11 items-center gap-2 font-semibold">
           <Image src="/icon.svg" alt="" width={28} height={28} className="size-7" />
           {t("app.name")}
         </Link>

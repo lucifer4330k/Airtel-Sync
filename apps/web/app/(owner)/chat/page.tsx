@@ -1,154 +1,212 @@
 "use client";
 
-import { SendHorizontal } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { Mic, MicOff, SendHorizontal, Volume2, VolumeX } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { Button, ButtonLink } from "@/components/ui/button";
-import type { Segment } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ApiError } from "@/lib/api";
+import { advisor, owner, plan, type BundleCard } from "@/lib/journey";
+import { cn, formatINR } from "@/lib/utils";
+import { useSpeech } from "@/lib/use-speech";
 
-/*
- * Scripted slot-filling for now: the same five slots the LangChain advisor
- * will fill. When POST /advisor/sessions/{id}/messages lands, the question
- * logic moves server-side and this screen only renders turns.
- */
-
-type Slot = "segment" | "employees" | "sites" | "city_tier" | "gstin";
 type Msg = { from: "advisor" | "owner"; text: string };
-type Answers = Partial<{ segment: Segment; employees: number; sites: number; city_tier: 1 | 2; gstin: string }>;
-
-const ORDER: Slot[] = ["segment", "employees", "sites", "city_tier", "gstin"];
-const QUESTION: Record<Slot, string> = {
-  segment: "q_type",
-  employees: "q_employees",
-  sites: "q_sites",
-  city_tier: "q_city",
-  gstin: "q_gstin",
-};
 
 export default function ChatPage() {
   const t = useTranslations("chat");
-  const [answers, setAnswers] = useState<Answers>({});
-  const [messages, setMessages] = useState<Msg[]>([{ from: "advisor", text: t("q_type") }]);
-  const [input, setInput] = useState("");
-  const endRef = useRef<HTMLDivElement>(null);
+  const tq = useTranslations("quote");
+  const locale = useLocale();
+  const router = useRouter();
 
-  const pending = ORDER.find((s) => !(s in answers));
-  const done = pending === undefined;
+  const [session, setSession] = useState<{ id: number; token: string } | null>(null);
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [chips, setChips] = useState<string[]>([]);
+  const [card, setCard] = useState<BundleCard | null>(null);
+  const [humanFlag, setHumanFlag] = useState(false);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [speak, setSpeak] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  const speech = useSpeech(locale === "hi" ? "hi-IN" : "en-IN");
+
+  const addAdvisor = useCallback(
+    (text: string) => {
+      setMessages((m) => [...m, { from: "advisor", text }]);
+      if (speak) speech.say(text);
+    },
+    [speak, speech],
+  );
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    advisor
+      .start(locale === "hi" ? "hi" : "en")
+      .then((s) => {
+        setSession({ id: s.session_id, token: s.token });
+        setMessages([{ from: "advisor", text: s.reply }]);
+        setChips(s.chips);
+      })
+      .catch(() => setError(t("start_error")));
+  }, [locale, t]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages]);
+  }, [messages, card]);
 
-  function record(slot: Slot, value: Answers[Slot] | "", shown: string) {
-    const next = { ...answers, [slot]: value };
-    setAnswers(next);
-    const nextSlot = ORDER.find((s) => !(s in next));
-    setMessages((m) => [
-      ...m,
-      { from: "owner", text: shown },
-      { from: "advisor", text: nextSlot ? t(QUESTION[nextSlot]) : t("done") },
-    ]);
+  async function send(text: string) {
+    const clean = text.trim();
+    if (!clean || !session || busy) return;
+    setMessages((m) => [...m, { from: "owner", text: clean }]);
     setInput("");
-  }
-
-  function submitText(e: React.FormEvent) {
-    e.preventDefault();
-    const text = input.trim();
-    if (!text || !pending) return;
-    if (pending === "employees" || pending === "sites") {
-      const n = Number.parseInt(text, 10);
-      if (!Number.isFinite(n) || n < 1) {
-        setMessages((m) => [...m, { from: "owner", text }, { from: "advisor", text: t("invalid_number") }]);
-        setInput("");
-        return;
+    setChips([]);
+    setBusy(true);
+    setError(null);
+    try {
+      const turn = await advisor.send(session.id, session.token, clean);
+      addAdvisor(turn.reply);
+      setChips(turn.chips);
+      if (turn.needs_human) setHumanFlag(true);
+      if (turn.bundle) {
+        setCard(turn.bundle);
+        owner.set({ businessId: turn.bundle.business_id, token: turn.bundle.owner_token });
+        plan.set({ quoteIds: turn.bundle.quotes.map((q) => q.id), recommended: turn.bundle.recommended_quote_id });
       }
-      record(pending, n, String(n));
-    } else if (pending === "gstin") {
-      record("gstin", text.toUpperCase(), text.toUpperCase());
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : t("start_error"));
+    } finally {
+      setBusy(false);
     }
   }
 
-  const quoteHref = done
-    ? `/quote?${new URLSearchParams({
-        segment: answers.segment!,
-        city_tier: String(answers.city_tier),
-        employees: String(answers.employees),
-        sites: String(answers.sites),
-        ...(answers.gstin ? { gstin: answers.gstin } : {}),
-      })}`
-    : "";
-
-  const chips: { label: string; act: () => void }[] =
-    pending === "segment"
-      ? (["micro", "prof", "multi", "mfg"] as Segment[]).map((s) => ({
-          label: t(`type_${s}`),
-          act: () => record("segment", s, t(`type_${s}`)),
-        }))
-      : pending === "city_tier"
-        ? ([1, 2] as const).map((c) => ({ label: t(`city_${c}`), act: () => record("city_tier", c, t(`city_${c}`)) }))
-        : pending === "gstin"
-          ? [{ label: t("no_gstin"), act: () => record("gstin", "", t("no_gstin")) }]
-          : pending === "sites"
-            ? [1, 2, 5].map((n) => ({ label: String(n), act: () => record("sites", n, String(n)) }))
-            : [];
+  useEffect(() => {
+    if (speech.transcript) {
+      void send(speech.transcript);
+      speech.reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [speech.transcript]);
 
   return (
     <div className="flex flex-1 flex-col">
-      <h1 className="sr-only">{t("title")}</h1>
+      <div className="mb-2 flex items-center justify-between">
+        <h1 className="text-lg font-semibold">{t("title")}</h1>
+        <button
+          type="button"
+          onClick={() => setSpeak((v) => !v)}
+          aria-pressed={speak}
+          className="flex min-h-11 cursor-pointer items-center gap-1.5 rounded-bill px-2 text-sm text-ink-soft hover:text-ink"
+        >
+          {speak ? <Volume2 aria-hidden className="size-4" /> : <VolumeX aria-hidden className="size-4" />}
+          {t("read_aloud")}
+        </button>
+      </div>
+
       <ol className="flex flex-1 flex-col gap-3" aria-live="polite">
         {messages.map((m, i) => (
           <li
             key={i}
             className={cn(
-              "max-w-[85%] rounded-bill px-4 py-2.5",
-              m.from === "advisor" ? "self-start border border-line bg-surface" : "self-end bg-pen text-white dark:text-paper",
+              "max-w-[88%] whitespace-pre-line rounded-bill px-4 py-2.5",
+              m.from === "advisor"
+                ? "self-start border border-line bg-surface"
+                : "self-end bg-pen text-white dark:text-paper",
             )}
           >
             {m.text}
           </li>
         ))}
-        <div ref={endRef} />
+        {busy && (
+          <li className="self-start rounded-bill border border-line bg-surface px-4 py-2.5 text-ink-soft" aria-busy>
+            …
+          </li>
+        )}
       </ol>
 
+      {card && (
+        <section className="mt-4 rounded-bill border border-line bg-surface p-4" aria-label={t("plan_title")}>
+          <h2 className="font-semibold">{t("plan_title")}</h2>
+          <ul className="mt-3 grid grid-cols-3 gap-2">
+            {card.quotes.map((q) => (
+              <li
+                key={q.id}
+                className={cn(
+                  "rounded-bill border p-2 text-center",
+                  q.id === card.recommended_quote_id ? "border-pen" : "border-line",
+                )}
+              >
+                <p className="text-xs text-ink-soft">{tq(q.tier)}</p>
+                <p className="money font-semibold">{formatINR(q.monthly_total)}</p>
+              </li>
+            ))}
+          </ul>
+          <Button width="full" className="mt-3" onClick={() => router.push(`/quote?q=${card.recommended_quote_id}`)}>
+            {t("see_plan")}
+          </Button>
+        </section>
+      )}
+      {humanFlag && <p className="mt-3 text-sm text-ink-soft">{t("specialist")}</p>}
+      {error && (
+        <p role="alert" className="mt-3 text-sm text-alert">
+          {error}
+        </p>
+      )}
+      <div ref={endRef} />
+
       <div className="sticky bottom-0 mt-4 flex flex-col gap-3 bg-paper pb-2 pt-2">
-        {done ? (
-          <ButtonLink href={quoteHref} width="full">
-            {t("see_price")}
-          </ButtonLink>
-        ) : (
-          <>
-            {chips.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {chips.map((c) => (
-                  <Button key={c.label} variant="quiet" onClick={c.act} className="min-h-11 px-4 text-sm font-medium">
-                    {c.label}
-                  </Button>
-                ))}
-              </div>
-            )}
-            {(pending === "employees" || pending === "sites" || pending === "gstin") && (
-              <form onSubmit={submitText} className="flex gap-2">
-                <label htmlFor="answer" className="sr-only">
-                  {t("placeholder")}
-                </label>
-                <input
-                  id="answer"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  inputMode={pending === "gstin" ? "text" : "numeric"}
-                  autoComplete="off"
-                  placeholder={t("placeholder")}
-                  className="min-h-12 flex-1 rounded-bill border border-line bg-surface px-4 text-base"
-                />
-                <Button type="submit" aria-label={t("send")} className="px-4">
-                  <SendHorizontal aria-hidden className="size-5" />
-                </Button>
-              </form>
-            )}
-          </>
+        {chips.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {chips.map((c) => (
+              <Button
+                key={c}
+                variant="quiet"
+                onClick={() => send(c)}
+                disabled={busy}
+                className="min-h-11 px-4 text-sm font-medium"
+              >
+                {c}
+              </Button>
+            ))}
+          </div>
         )}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void send(input);
+          }}
+          className="flex gap-2"
+        >
+          <label htmlFor="answer" className="sr-only">
+            {t("placeholder")}
+          </label>
+          <input
+            id="answer"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            autoComplete="off"
+            placeholder={speech.listening ? t("listening") : t("placeholder")}
+            className="min-h-12 min-w-0 flex-1 rounded-bill border border-line bg-surface px-4 text-base"
+          />
+          {speech.supported && (
+            <Button
+              type="button"
+              variant="quiet"
+              aria-label={speech.listening ? t("mic_stop") : t("mic_start")}
+              aria-pressed={speech.listening}
+              onClick={speech.listening ? speech.stop : speech.listen}
+              className="px-3"
+            >
+              {speech.listening ? <MicOff aria-hidden className="size-5" /> : <Mic aria-hidden className="size-5" />}
+            </Button>
+          )}
+          <Button type="submit" aria-label={t("send")} className="px-4" disabled={busy || !session}>
+            <SendHorizontal aria-hidden className="size-5" />
+          </Button>
+        </form>
       </div>
     </div>
   );

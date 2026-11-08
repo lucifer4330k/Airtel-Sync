@@ -30,3 +30,9 @@ Thumbs.db
 # Playwright
 apps/web/test-results/
 apps/web/playwright-report/
+
+# local KYC document storage (dev)
+.storage/
+
+# deployment secrets
+deploy/space.env

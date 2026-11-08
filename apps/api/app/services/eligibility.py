@@ -25,21 +25,28 @@ class Eligibility:
     product_id: str
     ok: bool
     reasons: tuple[str, ...] = ()
+    # Machine-readable rule per reason: city_tier / min_employees / min_sites / requires_gstin
+    rules: tuple[str, ...] = ()
 
 
 def eligible(product: Product, biz: BusinessProfile) -> Eligibility:
     """Pass/fail plus plain-language reasons for every rule that fails."""
     reasons: list[str] = []
+    rules: list[str] = []
     if biz.city_tier not in product.tiers:
         tiers = " or ".join(f"tier-{t}" for t in product.tiers)
         reasons.append(f"{product.name} is only sold in {tiers} cities")
+        rules.append("city_tier")
     if biz.employees < product.min_employees:
         reasons.append(f"{product.name} needs at least {product.min_employees} employees")
+        rules.append("min_employees")
     if biz.sites < product.min_sites:
         reasons.append(f"{product.name} needs at least {product.min_sites} sites")
+        rules.append("min_sites")
     if product.requires_gstin and not biz.gstin_active:
         reasons.append(f"{product.name} needs an active GST registration")
-    return Eligibility(product.product_id, ok=not reasons, reasons=tuple(reasons))
+        rules.append("requires_gstin")
+    return Eligibility(product.product_id, ok=not reasons, reasons=tuple(reasons), rules=tuple(rules))
 
 
 def eligible_products(biz: BusinessProfile) -> list[Product]:

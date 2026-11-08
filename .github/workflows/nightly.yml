@@ -1,0 +1,76 @@
+name: Nightly
+
+# Advisor personas against the real LLM (every push runs them on the rules
+# engine alone), plus the full end-to-end journey in a browser.
+on:
+  schedule:
+    - cron: "30 21 * * *" # 03:00 IST
+  workflow_dispatch:
+
+jobs:
+  advisor-llm:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: udyam, POSTGRES_PASSWORD: udyam, POSTGRES_DB: udyam }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U udyam" --health-interval 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      LLM_PROVIDER: gemini
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv python install 3.11
+      - run: uv sync --extra dev
+      - name: Personas with the LLM in the loop
+        if: env.GOOGLE_API_KEY != ''
+        run: uv run pytest -q tests/test_advisor_scenarios.py
+
+  e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: udyam, POSTGRES_PASSWORD: udyam, POSTGRES_DB: udyam }
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U udyam" --health-interval 5s --health-retries 10
+    env:
+      FIELD_ENCRYPTION_KEY: ${{ secrets.E2E_FIELD_ENCRYPTION_KEY }}
+      JWT_SECRET: e2e-only-secret
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: apps/web/package-lock.json }
+      - name: API
+        working-directory: apps/api
+        run: |
+          uv python install 3.11 && uv sync
+          if [ -z "$FIELD_ENCRYPTION_KEY" ]; then export FIELD_ENCRYPTION_KEY=$(uv run python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"); fi
+          echo "FIELD_ENCRYPTION_KEY=$FIELD_ENCRYPTION_KEY" >> "$GITHUB_ENV"
+          uv run alembic upgrade head
+          uv run python ../../scripts/seed_db.py
+          nohup uv run uvicorn app.main:app --port 8000 > api.log 2>&1 &
+      - name: Web
+        working-directory: apps/web
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          npm run build
+          nohup npm start > web.log 2>&1 &
+          npx wait-on http://localhost:3000 http://localhost:8000/api/v1/health
+          npm run e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts
+          path: |
+            apps/web/test-results
+            apps/api/api.log
+            apps/web/web.log

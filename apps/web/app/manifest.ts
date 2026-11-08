@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Udyam Digital",
     short_name: "Udyam",
     description: "Internet, phones and billing for your business, with one monthly price.",
-    start_url: "/",
+    start_url: "/start",
     display: "standalone",
     background_color: "#F6F7F9",
     theme_color: "#2A3A8F",

@@ -16,6 +16,11 @@
   --stamp: 30 122 76;
   --marigold: 227 162 26;
   --alert: 180 35 24;
+  /* chart mark: same hue as --pen, stepped into the validated lightness band */
+  --chart: 59 85 196;
+  /* landing page: the deep blue of a ledger cover, same in both themes */
+  --night: 18 26 51;
+  --night-soft: 30 40 80;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,6 +35,7 @@
     --stamp: 86 196 138;
     --marigold: 240 188 72;
     --alert: 248 113 102;
+    --chart: 106 128 224;
   }
 }
 

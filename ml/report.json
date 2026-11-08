@@ -1,0 +1,45 @@
+{
+ "rows": 5000,
+ "activated_rate": 0.0736,
+ "test_rows": 1250,
+ "roc_auc": {
+  "logistic": 0.6688,
+  "lightgbm": 0.624
+ },
+ "served": "logistic",
+ "top_coefficients": {
+  "segment_Micro retail & services": -1.012,
+  "lead_source_Referral": 0.939,
+  "lead_source_WhatsApp campaign": -0.831,
+  "business_type_Hardware store": -0.701,
+  "business_type_Restaurant chain": -0.648,
+  "business_type_Plastic moulding unit": 0.644,
+  "has_gstin": 0.64,
+  "business_type_Gym chain": 0.636,
+  "preferred_language_Punjabi": -0.584,
+  "segment_Small multi-site businesses": 0.576,
+  "lead_source_Website form": -0.505,
+  "business_type_Auto-parts unit": -0.491,
+  "business_type_Pre-school chain": -0.475,
+  "business_type_Mobile repair shop": 0.472,
+  "preferred_language_Hindi": 0.435
+ },
+ "excluded_as_leaky": [
+  "stage_reached",
+  "drop_reason",
+  "contacted_date",
+  "needs_assessed_date",
+  "quote_accepted_date",
+  "kyc_complete_date",
+  "activated_date",
+  "days_lead_to_activation",
+  "customer_follow_up_calls",
+  "bundle_products",
+  "monthly_bundle_value_inr",
+  "one_time_setup_inr",
+  "contract_months",
+  "churned_within_6_months",
+  "nps_score",
+  "acquisition_cost_inr"
+ ]
+}
